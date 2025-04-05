@@ -1,0 +1,18 @@
+{
+  "name": "project-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && echo \"No backend scripts available yet\""
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "WebSocket server for collaborative code editing",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "y-websocket": "^1.5.0",
+    "ws": "^8.13.0",
+    "yjs": "^13.6.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

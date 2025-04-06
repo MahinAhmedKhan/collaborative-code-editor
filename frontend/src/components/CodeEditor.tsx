@@ -133,7 +133,7 @@ const CodeEditor = () => {
               }}
             />
           </Box>
-          <Box w="full" h="40vh">
+          <Box w="full">
             <Output
               editorRef={editorRef}
               language={language}
@@ -163,7 +163,7 @@ const CodeEditor = () => {
               }}
             />
           </Box>
-          <Box flex={1} h="90vh" w="50%">
+          <Box flex={1} w='full' h="90vh">
             <Output
               editorRef={editorRef}
               language={language}

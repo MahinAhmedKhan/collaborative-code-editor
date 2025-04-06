@@ -66,7 +66,7 @@ const Output = ({ editorRef, language, isCollaborating, collaborationSession }: 
   }
 
   return (
-    <Box w='50%' bg='gray.800'>
+    <Box w='full' bg='gray.800'>
       <Button
         variant={'outline'}
         colorScheme='green'

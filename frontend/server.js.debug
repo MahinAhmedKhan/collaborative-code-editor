@@ -13,9 +13,11 @@ wss.on('connection', (ws, req) => {
   console.log('Client connected');
   console.log('Connection from: ', req.headers['user-agent']);
   
+  // Get room name from URL
   const url = new URL(req.url, 'http://localhost:1234');
   const roomName = url.pathname.slice(1);
   
+  // Setup the Y.js WebSocket connection
   console.log('Setting up connection for room: ', roomName);
   setupWSConnection(ws, req, { docName: roomName });
 });

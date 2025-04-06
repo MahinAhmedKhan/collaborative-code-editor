@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Button, 
   Box, 
@@ -17,24 +17,48 @@ import {
   Tooltip,
   IconButton,
 } from '@chakra-ui/react';
-import { CopyIcon } from '@chakra-ui/icons';
+import { CopyIcon, ViewIcon } from '@chakra-ui/icons';
+import { CollaborationSession } from '@/utils/collaboration';
 
 interface CollaborationControlsProps {
   activeRoom: string | null;
   onCreateRoom: () => void;
   onJoinRoom: (roomId: string) => void;
   onLeaveRoom: () => void;
+  collaborationSession: CollaborationSession | null;
 }
 
 const CollaborationControls = ({ 
   activeRoom, 
   onCreateRoom, 
   onJoinRoom, 
-  onLeaveRoom 
+  onLeaveRoom,
+  collaborationSession,
 }: CollaborationControlsProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [roomId, setRoomId] = useState('');
+  const [userCount, setUserCount] = useState(1);
   const toast = useToast();
+
+  useEffect(() => {
+    if (!collaborationSession) return;
+  
+    const awareness = collaborationSession.awareness;
+  
+    const updateUserCount = () => {
+      const count = awareness.getStates().size;
+      console.log('User count updated:', count);
+      setUserCount(count);
+    };
+  
+    awareness.on('change', updateUserCount);
+    updateUserCount();
+  
+    return () => {
+      awareness.off('change', updateUserCount);
+    };
+  }, [collaborationSession?.awareness]);
+  
 
   const handleJoinRoom = () => {
     if (!roomId.trim()) {
@@ -87,7 +111,13 @@ const CollaborationControls = ({
                   size="sm"
                   onClick={handleCopyRoomId}
                 />
-              </Tooltip> 
+              </Tooltip>
+              <Badge colorScheme="purple" p={2} borderRadius="md">
+                <HStack spacing={2}>
+                  <ViewIcon />
+                  <Text>{userCount} user{userCount !== 1 ? 's' : ''}</Text>
+                </HStack>
+              </Badge>
               </HStack>           
             <Button colorScheme="red" onClick={onLeaveRoom}>
               Leave Room

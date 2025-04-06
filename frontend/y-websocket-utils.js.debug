@@ -27,13 +27,13 @@ const getYDoc = (docName) => {
 export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
   const doc = getYDoc(docName);
   const awareness = new awarenessProtocol.Awareness(doc);
-
+  
   // Connection ready state
   let connectionReady = false;
-
+  
   // Check if connection is still alive
   let pingTimeout = null;
-
+  
   // Send sync step 1
   const sendSync = () => {
     const encoder = encoding.createEncoder();
@@ -41,8 +41,8 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
     syncProtocol.writeSyncStep1(encoder, doc);
     ws.send(encoding.toUint8Array(encoder));
   };
-
-
+  
+  
   const sendAwareness = () => {
     const awarenessUpdate = awarenessProtocol.encodeAwarenessUpdate(
       awareness,
@@ -53,8 +53,8 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
     encoding.writeVarUint8Array(encoder, awarenessUpdate);
     ws.send(encoding.toUint8Array(encoder));
   };
-
-
+  
+  
   // Clean up on close
   const closeConn = () => {
     if (pingTimeout) {
@@ -64,7 +64,7 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
     awarenessProtocol.removeAwarenessStates(awareness, [clientID], null);
     ws.close();
   };
-
+  
   const setPingTimeout = () => {
     if (pingTimeout) {
       clearTimeout(pingTimeout);
@@ -76,12 +76,12 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
       }
     }, 30000);
   };
-
+  
   ws.on('message', (message) => {
     const encoder = encoding.createEncoder();
     const decoder = decoding.createDecoder(new Uint8Array(message));
     const messageType = decoding.readVarUint(decoder);
-
+    
     switch (messageType) {
       case messageSync:
         syncProtocol.readSyncMessage(decoder, encoder, doc, req.headers['sec-websocket-key']);
@@ -93,20 +93,20 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
         awarenessProtocol.applyAwarenessUpdate(awareness, decoding.readVarUint8Array(decoder), req.headers['sec-websocket-key']);
         break;
     }
-
+    
     if (!connectionReady) {
       connectionReady = true;
       sendSync();
       sendAwareness();
     }
   });
-
+  
   ws.on('close', closeConn);
-
+  
   ws.on('pong', setPingTimeout);
-
+  
   setPingTimeout();
-
+  
   doc.on('update', (update, origin) => {
     if (origin !== req.headers['sec-websocket-key'] && ws.readyState === wsReadyStateOpen) {
       const encoder = encoding.createEncoder();
@@ -115,12 +115,10 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
       ws.send(encoding.toUint8Array(encoder));
     }
   });
-
+  
   awareness.on('update', ({ added, updated, removed }) => {
-    // console.log('Awareness update - added:', added, 'updated:', updated, 'removed:', removed);
-    // console.log('Current awareness states:', awareness.getStates().size);
-    // console.log('Room:', docName);
-    // console.log('Awareness states:', Array.from(awareness.getStates().keys()));
+    console.log('Awareness update - added:', added, 'updated:', updated, 'removed:', removed);
+    console.log('Current awareness states:', awareness.getStates().size);
     const changedClients = [...added, ...updated, ...removed];
     if (ws.readyState === wsReadyStateOpen) {
       const awarenessUpdate = awarenessProtocol.encodeAwarenessUpdate(
@@ -133,5 +131,5 @@ export const setupWSConnection = (ws, req, { docName = 'default' } = {}) => {
       ws.send(encoding.toUint8Array(encoder));
     }
   });
-
+  
 };

@@ -13,8 +13,11 @@ import {
   Text,
   useDisclosure,
   useToast,
-  Badge
+  Badge,
+  Tooltip,
+  IconButton,
 } from '@chakra-ui/react';
+import { CopyIcon } from '@chakra-ui/icons';
 
 interface CollaborationControlsProps {
   activeRoom: string | null;
@@ -43,9 +46,20 @@ const CollaborationControls = ({
       });
       return;
     }
-    
     onJoinRoom(roomId);
     onClose();
+  };
+
+  const handleCopyRoomId = async () => {
+    if (activeRoom) {
+      await navigator.clipboard.writeText(activeRoom);
+      toast({
+        title: 'Room ID copied!',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -62,9 +76,19 @@ const CollaborationControls = ({
           </>
         ) : (
           <>
+            <HStack>
             <Badge colorScheme="green" p={2} borderRadius="md">
               Connected to Room: {activeRoom}
             </Badge>
+            <Tooltip label="Copy Room ID">
+                <IconButton
+                  aria-label="Copy room ID"
+                  icon={<CopyIcon />}
+                  size="sm"
+                  onClick={handleCopyRoomId}
+                />
+              </Tooltip> 
+              </HStack>           
             <Button colorScheme="red" onClick={onLeaveRoom}>
               Leave Room
             </Button>

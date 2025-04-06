@@ -1,13 +1,41 @@
 import { Box, Button, useToast, Text} from "@chakra-ui/react"
 import { executeCode } from "@/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CollaborationSession, observeRunAction, updateSharedOutput } from "@/utils/collaboration";
 
-const Output = ({ editorRef, language }: { editorRef: any, language: string }) => {
+interface OutputProps {
+  editorRef: any;
+  language: string;
+  isCollaborating: boolean;
+  collaborationSession: CollaborationSession | null;
+}
+
+const Output = ({ editorRef, language, isCollaborating, collaborationSession }: OutputProps) => {
 
   const toast = useToast();
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setError] = useState(false);
+
+  useEffect(() => {
+    if (collaborationSession && isCollaborating) {
+      const unsubscribe = observeRunAction(collaborationSession, (newOutput, newIsError) => {
+        setOutput(newOutput);
+        setError(newIsError);
+      });
+
+      const existingOutput = collaborationSession.outputMap?.get('output');
+      const existingIsError = collaborationSession.outputMap?.get('isError');
+      if (existingOutput) {
+        setOutput(existingOutput);
+        setError(existingIsError || false);
+      }
+
+      return () => {
+        unsubscribe;
+      };
+    }
+  }, [collaborationSession, isCollaborating]);
 
   async function runCode() {
 
@@ -16,8 +44,13 @@ const Output = ({ editorRef, language }: { editorRef: any, language: string }) =
     try{
       setIsLoading(true);
       const {run: result}= await executeCode(language, sourceCode);
-      setOutput(result.output.split('\n'));
-      result.stderr ? setError(true) : setError(false);
+      const outputLines = result.output.split('\n');
+      const hasError = !!result.stderr;
+      setOutput(outputLines);
+      setError(hasError);
+      if (collaborationSession && isCollaborating) {
+        updateSharedOutput(collaborationSession, outputLines, hasError);
+      }
     } catch(error) {
       console.log(error);
       toast({

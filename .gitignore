@@ -40,3 +40,23 @@ coverage/
 
 # Misc
 .cache/
+
+# Debug files
+*.debug
+
+# Local development files
+.vite/
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+.eslintcache
+
+# Editor directories and files
+.DS_Store
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

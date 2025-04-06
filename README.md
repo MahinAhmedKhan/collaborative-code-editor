@@ -2,7 +2,18 @@
 
 A real-time collaborative code editor that allows multiple users to write and execute code together in various programming languages.
 
-![Collaborative Code Editor](https://i.imgur.com/placeholder.png)
+## Table of Contents
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
